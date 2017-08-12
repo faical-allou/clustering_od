@@ -20,29 +20,32 @@ There are a few major difference:
 - data input is normalized before running the algorithm
 - initial clusters can be given instead of randomly chosen from the set
 - removed the integration with Plotly since reading from a file means larger dimensions
+- original ran on python2.7, this version runs on both 2.7 and 3.5
 
 The main issue with the original code arises for data with a lot of similar data points
 which can result in empty clusters during the optimization
 -> this is solved by fixing the centroid where it is as long as there is no other point in the cluster
+
+Files need to be in Unicode (watch out for UTF-8 caracters in your files otherwise)
 """
 
 def main():
     # file name containing the data (first column should have column names)
-    filename_input = 'C:/Users/faicalallou/Documents/Dev/od_clusters_sample.csv'
+    filename_input = 'C:/Users/faicalallou/Documents/Dev/od_clusters.csv'
 
     # file name of the initial centroids if any (use None to start from a random set)
     # use the same column name and structure as filename_input
-    #filename_init = 'C:/Users/faicalallou/Documents/Dev/initial_centroids.csv'
-    filename_init = None
+    filename_init = 'C:/Users/faicalallou/Documents/Dev/initial_centroids.csv'
+    #filename_init = None
 
     # file name to export to
-    filename_out = 'C:/Users/faicalallou/Documents/Dev/clustering_results_export_test.csv'
+    filename_out = 'C:/Users/faicalallou/Documents/Dev/clustering_results_export.csv'
 
     # indeces of the colum with ID (such as origin or category) in the input file
     # Can have multiple column for name ID.
-    # then adapt the Centroid names for the export
+    # then repeats the Centroid names to match record names during export
     id_column = [0,1,2]
-    centroid_name = str(['Centroid']*len(id_column))
+    centroid_name = ''.join('Centroid,' for i in range(len(id_column)))[:-1]
 
     # index of columns to read from the file (index start at 0)
     first_column = 3
@@ -58,11 +61,12 @@ def main():
 
     # The K in k-means.
     #How many clusters do we assume exist? starting from 0?
-    num_clusters = 2
+    # in case of initial centroid given, this will be overwritten by the number of centroids length
+    num_clusters = 8
 
     # When do we say the optimization has 'converged' and stop updating clusters
     # this the maximum distance any centroid has moved between 2 iterations
-    opt_cutoff = 1
+    opt_cutoff = 0.02
 
     # Generate the points from the file
     data = []
@@ -74,8 +78,8 @@ def main():
 
         for line in f:
             x = line.split(',')
-            y = [float(x[i].strip() or 0) for i in list_index]
-            z = [x[j].strip() for j in id_column]
+            y = [float(x[i].strip('\n') or 0) for i in list_index]
+            z = ''.join(x[j]+',' for j in id_column)[:-1]
             data.append(y)
             data_names.append(z)
 
@@ -84,49 +88,49 @@ def main():
     save_firstline2 = []
     initial_centroid_names = []
     initial_centroid_points = []
-    initial_centroid_name_labels = ['Cluster']
+    initial_centroid_name_labels = 'Cluster'
     if filename_init != None:
         with open(filename_init, "rt") as f2:
             #reading first line to save the column names
-            save_firstline2 = f2.readline().decode("utf-8-sig").encode("utf-8")
-
+            save_firstline2 = f2.readline()
             for line in f2:
                 x = line.split(',')
-                y = [float(x[i].strip() or 0) for i in list_index]
-                z = [x[j].strip() for j in id_column]
+                y = [float(x[i].strip('\n') or 0) for i in list_index]
+                z = ''.join(x[j]+',' for j in id_column)[:-1]
                 initial_centroid.append(y)
                 initial_centroid_names.append(z)
         # creating point instances from the values read
-        initial_centroid_points = [Point(initial_centroid[i],str(initial_centroid_names[i]).translate(None, "[]'")) for i in xrange(num_clusters+1) ]
+        initial_centroid_points = [Point(initial_centroid[i],str(initial_centroid_names[i])) for i in range(num_clusters+1) ]
         # saving the labels of the ID columns
-        initial_centroid_name_labels = [save_firstline2.split(',')[i] for i in id_column]
+        initial_centroid_name_labels = ''.join([save_firstline2.split(',')[i]+',' for i in id_column])[:-1]
+        num_clusters = len(initial_centroid_names)-1
 
     #adding a filter for the origin
     if value_to_filter != None:
-        data = [data[i] for i in xrange(len(data)) if data_names[i][index_to_filter_on] == value_to_filter ]
-        data_names = [data_names[i] for i in xrange(len(data_names)) if data_names[i][index_to_filter_on] == value_to_filter ]
+        data = [data[i] for i in range(len(data)) if data_names[i][index_to_filter_on] == value_to_filter ]
+        data_names = [data_names[i] for i in range(len(data_names)) if data_names[i][index_to_filter_on] == value_to_filter ]
 
     # Calulate size of the data
     num_points = len(data)
     dimensions = len(data[0])
 
     #normalizing the data => linearly [0,1] interval
-    normal_data = [[0 for i in xrange(dimensions)] for j in xrange(num_points)]
+    normal_data = [[0 for i in range(dimensions)] for j in range(num_points)]
     max_data = [1]*dimensions
     min_data = [0]*dimensions
-    for i in xrange(dimensions):
-        max_data[i] = max(data[j][i] for j in xrange(num_points))
-        min_data[i] = min(data[j][i] for j in xrange(num_points))
+    for i in range(dimensions):
+        max_data[i] = max(data[j][i] for j in range(num_points))
+        min_data[i] = min(data[j][i] for j in range(num_points))
 
-    for j in xrange(num_points):
-        for i in xrange(dimensions):
+    for j in range(num_points):
+        for i in range(dimensions):
             if max_data[i]-min_data[i] == 0:
                 normal_data[j][i] = 0
             else:
                 normal_data[j][i] = (data[j][i]-min_data[i])/(max_data[i]-min_data[i])
 
     # Create points to cluster
-    points = [Point(normal_data[i],str(data_names[i]).translate(None, "[]'")) for i in xrange(num_points) ]
+    points = [Point(normal_data[i],str(data_names[i])) for i in range(num_points) ]
 
     # Cluster the points (that's where the magic happens)
     clusters = kmeans(points, num_clusters, opt_cutoff, initial_centroid_points)
@@ -135,19 +139,19 @@ def main():
     if len(initial_centroid_names) > 0:
         cluster_names = initial_centroid_names
     else:
-        cluster_names = [i for i in xrange(num_clusters+1)]
+        cluster_names = [i for i in range(num_clusters+1)]
     # Print the resulting clusters on screen
     for i,c in enumerate(clusters):
         for p in c.points:
-            print " Cluster: ", str(cluster_names[i]).translate(None, "[]'"), "\t Point :", p.name
+            print('Cluster: ', str(cluster_names[i]), '\t Point :', p.name)
 
     # export a file with results adding cluster names as first column and all the values after
     results_file = open(filename_out, 'w')
-    results_file.write(str(initial_centroid_name_labels).translate(None, "[]'")+','+ str(save_firstline))
+    results_file.write(str(initial_centroid_name_labels)+','+ str(save_firstline))
     for i,c in enumerate(clusters):
-        results_file.write(str(cluster_names[i]).translate(None, "[]'")+','+centroid_name.translate(None, "[]'")+','+str(c.centroid.coords).translate(None, "[]'")+'\n')
+        results_file.write(str(cluster_names[i])+','+centroid_name+','+str(c.centroid.coords).strip("[]")+'\n')
         for p in c.points:
-            results_file.write(str(cluster_names[i]).translate(None, "[]'")+','+str(p.name)+','+str(p.coords).translate(None, "[]'")+'\n')
+            results_file.write(str(cluster_names[i])+','+str(p.name)+','+str(p.coords).strip("[]")+'\n')
 
 class Point:
     #A point in n dimensional space, its length and name
@@ -267,7 +271,7 @@ def kmeans(points, k, cutoff, initial_centroid):
 
         # If the centroids have stopped moving much, say we're done!
         if biggest_shift < cutoff:
-            print "Converged after %s iterations" % loopCounter
+            print("Converged after %s iterations" % loopCounter)
             break
     return clusters
 
@@ -277,7 +281,7 @@ def getDistance(a, b):
     if a.n != b.n:
         raise Exception("ILLEGAL: non comparable points: one point is "+str(a.n)+" and the other one is "+str(b.n))
 
-    ret = reduce(lambda x,y: x + pow((a.coords[y]-b.coords[y]), 2),range(a.n),0.0)
+    ret = sum(pow((a.coords[y]-b.coords[y]), 2) for y in range(a.n))
     return math.sqrt(ret)
 
 
