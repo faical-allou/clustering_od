@@ -13,10 +13,10 @@ https://www.snip2code.com/Snippet/7977/A-pure-python-implementation-of-K-Means-
 which is itself built from the code here:
 http://pandoricweb.tumblr.com/post/8646701677/python-implementation-of-the-k-means-clustering
 
-There are a few major difference:
+There are a few major differences:
 - data points can be labeled
-- data is read from a file with filters for particular entries
-- results is output to a file
+- data is read from a file and can be filtered for particular entries on a given column
+- results are output to a file
 - data input is normalized before running the algorithm
 - initial clusters can be given instead of randomly chosen from the set
 - removed the integration with Plotly since reading from a file means larger dimensions
