@@ -1,11 +1,3 @@
-#############################################################################
-# Full Imports
-
-import sys
-import math
-import random
-import subprocess
-
 """
 This is a pure Python implementation of the K-Means Clustering algorithmn.
 I started from the code here:
@@ -20,7 +12,8 @@ There are a few major differences:
 - data input is normalized before running the algorithm
 - initial clusters can be given instead of randomly chosen from the set
 - removed the integration with Plotly since reading from a file means larger dimensions
-- original ran on python2.7, this version runs on both 2.7 and 3.5
+- original ran on python2.7, this version runs on 3.5
+    - (while I kept back compatibility in early commits I can't garantee them all the way)
 
 The main issue with the original code arises for data with a lot of similar data points
 which can result in empty clusters during the optimization
@@ -28,6 +21,11 @@ which can result in empty clusters during the optimization
 
 Files need to be in Unicode (watch out for UTF-8 caracters in your files otherwise)
 """
+import sys
+import math
+import random
+import subprocess
+
 
 def main():
     # file name containing the data (first column should have column names)
@@ -67,6 +65,9 @@ def main():
     # When do we say the optimization has 'converged' and stop updating clusters
     # this the maximum distance any centroid has moved between 2 iterations
     opt_cutoff = 0.02
+
+
+''''''' End of inputs ''''''''
 
     # Generate the points from the file
     data = []
