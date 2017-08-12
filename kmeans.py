@@ -28,17 +28,17 @@ which can result in empty clusters during the optimization
 
 def main():
     # file name containing the data (first column should have column names)
-    filename_input = 'C:/Users/faicalallou/Documents/Dev/od_clusters.csv'
+    filename_input = 'C:/Users/faicalallou/Documents/Dev/od_clusters_sample.csv'
 
     # file name of the initial centroids if any (use None to start from a random set)
     # use the same column name and structure as filename_input
-    filename_init = 'C:/Users/faicalallou/Documents/Dev/initial_centroids.csv'
+    #filename_init = 'C:/Users/faicalallou/Documents/Dev/initial_centroids.csv'
+    filename_init = None
 
     # file name to export to
-    filename_out = 'C:/Users/faicalallou/Documents/Dev/clustering_results_export.csv'
+    filename_out = 'C:/Users/faicalallou/Documents/Dev/clustering_results_export_test.csv'
 
-
-    # indeces of the colum with ID (such as origin or category).
+    # indeces of the colum with ID (such as origin or category) in the input file
     # Can have multiple column for name ID.
     # then adapt the Centroid names for the export
     id_column = [0,1,2]
@@ -56,11 +56,13 @@ def main():
     index_to_filter_on = 1
     value_to_filter = None
 
-    # The K in k-means. How many clusters do we assume exist starting from 0?
-    num_clusters = 8
+    # The K in k-means.
+    #How many clusters do we assume exist? starting from 0?
+    num_clusters = 2
 
     # When do we say the optimization has 'converged' and stop updating clusters
-    opt_cutoff = 0.02
+    # this the maximum distance any centroid has moved between 2 iterations
+    opt_cutoff = 1
 
     # Generate the points from the file
     data = []
@@ -77,11 +79,13 @@ def main():
             data.append(y)
             data_names.append(z)
 
-    # Generate the points from the file
-    if filename_input != None:
-        initial_centroid = []
-        initial_centroid_names = []
-        save_firstline2 = []
+    # Generate the initial centroids from the file
+    initial_centroid = []
+    save_firstline2 = []
+    initial_centroid_names = []
+    initial_centroid_points = []
+    initial_centroid_name_labels = ['Cluster']
+    if filename_init != None:
         with open(filename_init, "rt") as f2:
             #reading first line to save the column names
             save_firstline2 = f2.readline().decode("utf-8-sig").encode("utf-8")
@@ -92,7 +96,9 @@ def main():
                 z = [x[j].strip() for j in id_column]
                 initial_centroid.append(y)
                 initial_centroid_names.append(z)
+        # creating point instances from the values read
         initial_centroid_points = [Point(initial_centroid[i],str(initial_centroid_names[i]).translate(None, "[]'")) for i in xrange(num_clusters+1) ]
+        # saving the labels of the ID columns
         initial_centroid_name_labels = [save_firstline2.split(',')[i] for i in id_column]
 
     #adding a filter for the origin
@@ -122,20 +128,20 @@ def main():
     # Create points to cluster
     points = [Point(normal_data[i],str(data_names[i]).translate(None, "[]'")) for i in xrange(num_points) ]
 
-    # Cluster those points (that's where the magic happens)
+    # Cluster the points (that's where the magic happens)
     clusters = kmeans(points, num_clusters, opt_cutoff, initial_centroid_points)
 
     # Assigning names to the clusters if given otherwise numbers
     if len(initial_centroid_names) > 0:
         cluster_names = initial_centroid_names
     else:
-        cluster_names = [i for i in xrange(num_clusters)]
-    # Print the resulting clusters in screen
+        cluster_names = [i for i in xrange(num_clusters+1)]
+    # Print the resulting clusters on screen
     for i,c in enumerate(clusters):
         for p in c.points:
             print " Cluster: ", str(cluster_names[i]).translate(None, "[]'"), "\t Point :", p.name
 
-    # export a file with results adding cluster number
+    # export a file with results adding cluster names as first column and all the values after
     results_file = open(filename_out, 'w')
     results_file.write(str(initial_centroid_name_labels).translate(None, "[]'")+','+ str(save_firstline))
     for i,c in enumerate(clusters):
@@ -158,7 +164,6 @@ class Cluster:
     #A set of points and their centroid (which is a point)
     def __init__(self, points):
         #points - A list of point objects
-
         if len(points) == 0: raise Exception("ILLEGAL: empty cluster")
         # The points that belong to this cluster
         self.points = points
@@ -206,7 +211,7 @@ class Cluster:
 def kmeans(points, k, cutoff, initial_centroid):
 
     if len(initial_centroid) == k+1:
-        # use the initial centroids given
+        # use the initial centroids if given
         initial = initial_centroid
     else:
         print('Initial Centroid invalid, using random points')
@@ -269,7 +274,6 @@ def kmeans(points, k, cutoff, initial_centroid):
 def getDistance(a, b):
     #Euclidean distance between two n-dimensional points.
     #Note: This can be very slow and does not scale well
-
     if a.n != b.n:
         raise Exception("ILLEGAL: non comparable points: one point is "+str(a.n)+" and the other one is "+str(b.n))
 
