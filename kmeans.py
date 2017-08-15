@@ -13,7 +13,7 @@ There are a few major differences:
 - initial clusters can be given instead of randomly chosen from the set
 - removed the integration with Plotly since reading from a file means larger dimensions
 - original ran on python2.7, this version runs on 3.5
-    - (while I kept back compatibility in early commits I can't garantee them all the way)
+    - (while I kept back compatibility in early commits I can't garantee it all the way)
 
 The main issue with the original code arises for data with a lot of similar data points
 which can result in empty clusters during the optimization
@@ -33,8 +33,8 @@ def main():
 
     # file name of the initial centroids if any (use None to start from a random set)
     # use the same column name and structure as filename_input
-    filename_init = 'C:/Users/faicalallou/Documents/Dev/initial_centroids.csv'
-    #filename_init = None
+    #filename_init = 'C:/Users/faicalallou/Documents/Dev/initial_centroids_unsupervised.csv'
+    filename_init = None
 
     # file name to export to
     filename_out = 'C:/Users/faicalallou/Documents/Dev/clustering_results_export_test.csv'
@@ -55,19 +55,19 @@ def main():
     # (i.e. "index_to_filter_on = 1 means the second column of id_column")
     # Make it None (not 'None') to use the entire file
     index_to_filter_on = 1
-    value_to_filter = 'LON'
+    value_to_filter = None
 
     # The K in k-means.
     #How many clusters do we assume exist? starting from 0?
     # if initial centroid are given, this is overwritten by the number of centroids in the file
-    num_clusters = 8
+    num_clusters = 4
 
     # When do we say the optimization has 'converged' and stop updating clusters
     # this the maximum distance any centroid has moved between 2 iterations
     opt_cutoff = 0.02
 
 
-''''''' End of inputs ''''''''
+#''''''' End of inputs ''''''''
 
     # Generate the points from the file
     data = []
@@ -101,10 +101,11 @@ def main():
                 initial_centroid.append(y)
                 initial_centroid_names.append(z)
         # creating point instances from the values read
+        num_clusters = len(initial_centroid_names)-1
         initial_centroid_points = [Point(initial_centroid[i],str(initial_centroid_names[i])) for i in range(num_clusters+1) ]
         # saving the labels of the ID columns
         initial_centroid_name_labels = ''.join([save_firstline2.split(',')[i]+',' for i in id_column])[:-1]
-        num_clusters = len(initial_centroid_names)-1
+
 
     #adding a filter for the origin
     if value_to_filter != None:
