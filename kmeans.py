@@ -29,15 +29,17 @@ import subprocess
 
 def main():
     # file name containing the data (first column should have column names)
-    filename_input = 'C:/Users/faicalallou/Documents/Dev/od_clusters.csv'
+    #filename_input = 'C:/Users/faicalallou/Documents/Dev/clusters_data.csv'
+    filename_input = 'C:/Users/faicalallou/Documents/Dev/clusters_data.csv'
+
 
     # file name of the initial centroids if any (use None to start from a random set)
     # use the same column name and structure as filename_input
-    #filename_init = 'C:/Users/faicalallou/Documents/Dev/initial_centroids_unsupervised.csv'
-    filename_init = None
+    filename_init = 'C:/Users/faicalallou/Documents/Dev/supercentroids7.csv'
+    #filename_init = None
 
     # file name to export to
-    filename_out = 'C:/Users/faicalallou/Documents/Dev/clustering_results_export_test.csv'
+    filename_out = 'C:/Users/faicalallou/Documents/Dev/clustering_runs21.csv'
 
     # indeces of the colum with ID (such as origin or category) in the input file
     # Can have multiple column for name ID.
@@ -47,7 +49,7 @@ def main():
 
     # index of columns to read from the file (index start at 0)
     first_column = 3
-    last_column = 30
+    last_column = 31
     list_index = range(first_column,last_column+1)
 
     # filtering the input file based on ID:
@@ -60,7 +62,7 @@ def main():
     # The K in k-means.
     #How many clusters do we assume exist? starting from 0?
     # if initial centroid are given, this is overwritten by the number of centroids in the file
-    num_clusters = 4
+    num_clusters = 9
 
     # When do we say the optimization has 'converged' and stop updating clusters
     # this the maximum distance any centroid has moved between 2 iterations
@@ -148,12 +150,13 @@ def main():
             print('Cluster: ', str(cluster_names[i]), '\t Point :', p.name)
 
     # export a file with results adding cluster names as first column and all the values after
+    # also adding distance to centroid at the end for validation
     results_file = open(filename_out, 'w')
-    results_file.write(str(initial_centroid_name_labels)+','+ str(save_firstline))
+    results_file.write(str(initial_centroid_name_labels)+',distancetocentroid,'+ str(save_firstline))
     for i,c in enumerate(clusters):
-        results_file.write(str(cluster_names[i])+','+centroid_name+','+str(c.centroid.coords).strip("[]")+'\n')
+        results_file.write(str(cluster_names[i])+',0,'+centroid_name+','+str(c.centroid.coords).strip("[]")+'\n')
         for p in c.points:
-            results_file.write(str(cluster_names[i])+','+str(p.name)+','+str(p.coords).strip("[]")+'\n')
+            results_file.write(str(cluster_names[i])+','+str(getDistance(p,c.centroid))+','+str(p.name)+','+str(p.coords).strip("[]")+'\n')
 
 class Point:
     #A point in n dimensional space, its length and name
