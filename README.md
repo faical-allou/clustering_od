@@ -28,7 +28,7 @@ This runs as pure Python 3.5 without any additional package, no need for "pip in
 
 The user inputs are all in the first part of the kmeans.py file; you just need to adapt them and run the script
 
-The file clustering_data.csv contains the an example of input with real data from routes searched for on Skyscanner; if you want to understande the value, you can check the SQL file which was used to extract the data from the database
+The file clustering_data.csv contains an example of input with real travel data from routes searched for on Skyscanner; if you want to understande the values, you can check the SQL file which was used to extract the data from the database
 
 If you want to run the script multiple times you can run the iterate_kmeans.py script, it will output a file for each run
 
