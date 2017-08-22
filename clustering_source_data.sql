@@ -51,13 +51,13 @@ FROM(
 	case when to_char(outbounddate, 'D') = '6' then seats end as FRI,
 	case when to_char(outbounddate, 'D') = '7' then seats end as SAT,
 	case when dayslengthofstay between 0 and 6 	then seats end as los_lessthan7,
-	case when dayslengthofstay >= 7 			then seats end as los_7andmore,
+	case when dayslengthofstay >= 7 		then seats end as los_7andmore,
 	case when daystodeparture between 0 and 6 	then seats end as adv_lessthan7,
 	case when daystodeparture between 7 and 30 	then seats end as adv_between7and30,
-	case when daystodeparture >= 30 			then seats end as adv_morethan30,
+	case when daystodeparture >= 30 		then seats end as adv_morethan30,
 	case when adults = 1 and children = 0 		then seats end as solo,
 	case when adults = 2 and children = 0 		then seats end as couple,
-	case when children > 0 						then seats end as atleastonechild
+	case when children > 0 				then seats end as atleastonechild
 
 	FROM search_table
 	WHERE date >= getdate() - 365 and origincitycode is not null and destinationcitycode is not null and not (platform = 'dataapi' and usercountry = 'CN')
