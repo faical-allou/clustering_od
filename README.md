@@ -3,6 +3,8 @@
 This is a pure Python implementation of the K-Means Clustering algorithm.
 I started from the code [here](https://gist.github.com/iandanforth/5862470) which is itself built from the code [here](http://pandoricweb.tumblr.com/post/8646701677/python-implementation-of-the-k-means-clustering)
 
+*IMPORTANT: this has been written for readibility and not for speed (a vectorized version using numpy package for example can run a lot faster)*
+
 There are a few major differences:
 
 - data is read from a file and can be filtered for particular entries on a given column
