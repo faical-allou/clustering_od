@@ -1,6 +1,6 @@
-SELECT origdestcitycode, origincitycode, destinationcitycode, 
-sum(JAN) /sum(seats) ::float as shareJAN, 
-sum(FEB) /sum(seats) ::float as shareFEB, 
+SELECT origdestcitycode, origincitycode, destinationcitycode,
+sum(JAN) /sum(seats) ::float as shareJAN,
+sum(FEB) /sum(seats) ::float as shareFEB,
 sum(MAR) /sum(seats) ::float as shareMAR,
 sum(APR) /sum(seats) ::float as shareAPR,
 sum(MAY) /sum(seats) ::float as shareMAY,
@@ -50,8 +50,8 @@ FROM(
 	case when to_char(outbounddate, 'D') = '5' then seats end as THU,
 	case when to_char(outbounddate, 'D') = '6' then seats end as FRI,
 	case when to_char(outbounddate, 'D') = '7' then seats end as SAT,
-	case when dayslengthofstay between 0 and 6 	then seats end as los_lessthan7,
-	case when dayslengthofstay >= 7 		then seats end as los_7andmore,
+	case when dayslengthofstay between 0 and 6 and dayslengthofstay is not NULL	then seats end as los_lessthan7,
+	case when dayslengthofstay >= 7 and dayslengthofstay is not NULL	then seats end as los_7andmore,
 	case when daystodeparture between 0 and 6 	then seats end as adv_lessthan7,
 	case when daystodeparture between 7 and 30 	then seats end as adv_between7and30,
 	case when daystodeparture >= 30 		then seats end as adv_morethan30,
@@ -60,7 +60,9 @@ FROM(
 	case when children > 0 				then seats end as atleastonechild
 
 	FROM search_table
-	WHERE date >= getdate() - 365 and origincitycode is not null and destinationcitycode is not null and not (platform = 'dataapi' and usercountry = 'CN')
+	-- taking 365 days of data removing the "dataapi" for consistency and making sure the data is complete
+	WHERE date >= getdate() - 365 and origincitycode is not null and destinationcitycode is not null and platform in ( 'website', 'Website')
 	)
 	GROUP BY origdestcitycode, origincitycode, destinationcitycode
+	-- keeping only OD with more than 10000 over the period
 	HAVING sum(seats) >= 10000
