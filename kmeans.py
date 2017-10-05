@@ -7,7 +7,7 @@ import subprocess
 def main():
     # file name containing the data (first column should have column names)
     #filename_input = 'C:/Users/faicalallou/Documents/Dev/clusters_data.csv'
-    filename_input = 'C:/Users/faicalallou/Documents/Dev/clustering_data.csv'
+    filename_input = 'C:/Users/faica/OneDrive/Documents/dev/clustering_od/clusters_data.csv'
 
 
     # file name of the initial centroids if any (use None to start from a random set)
@@ -16,7 +16,7 @@ def main():
     filename_init = None
 
     # file name to export to
-    filename_out = 'C:/Users/faicalallou/Documents/Dev/clustering_runs.csv'
+    filename_out = 'C:/Users/faica/OneDrive/Documents/dev/clustering_od/results.csv'
 
     # indeces of the colum with ID (such as origin or category) in the input file
     # Can have multiple column for name ID.
@@ -34,12 +34,12 @@ def main():
     # (i.e. "index_to_filter_on = 1 means the second column of id_column")
     # Make it None (not 'None') to use the entire file
     index_to_filter_on = 1
-    value_to_filter = None
+    value_to_filter = "MOW,LED, OVB,SVX"
 
     # The K in k-means.
     #How many clusters do we assume exist? starting from 0?
     # if initial centroid are given, this is overwritten by the number of centroids in the file
-    num_clusters = 9
+    num_clusters = 5
 
     # When do we say the optimization has 'converged' and stop updating clusters
     # this the maximum distance any centroid has moved between 2 iterations
@@ -88,8 +88,8 @@ def main():
 
     #adding a filter for the origin
     if value_to_filter != None:
-        data = [data[i] for i in range(len(data)) if data_names[i].split(',')[index_to_filter_on] == value_to_filter ]
-        data_names = [data_names[i] for i in range(len(data_names)) if data_names[i].split(',')[index_to_filter_on] == value_to_filter ]
+        data = [data[i] for i in range(len(data)) if data_names[i].split(',')[index_to_filter_on] in value_to_filter ]
+        data_names = [data_names[i] for i in range(len(data_names)) if data_names[i].split(',')[index_to_filter_on] in value_to_filter ]
 
     # Calulate size of the data
     num_points = len(data)
