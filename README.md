@@ -1,11 +1,11 @@
 # K-means Clustering from Input csv (Python3.5)
 
-This is a pure Python implementation of the K-Means Clustering algorithm.
+This is a pure Python implementation of the K-Means Clustering algorithm (no package required)
 I started from the code [here](https://gist.github.com/iandanforth/5862470) which is itself built from the code [here](http://pandoricweb.tumblr.com/post/8646701677/python-implementation-of-the-k-means-clustering)
 
-*IMPORTANT: this has been written for readibility and not for speed (a vectorized version using numpy package for example can run a lot faster)*
+*IMPORTANT: this has been written for readibility and not for speed (there are ways to make it run a lot faster)*
 
-There are a few major differences:
+There are a few major differences from the links above:
 
 - data is read from a file and can be filtered for particular entries on a given column
 - results are output to a file
